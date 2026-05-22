@@ -1,0 +1,95 @@
+# Functional requirements		
+		
+Accounts and Access		
+ID	Domain	User Story
+FR1.01	User Management	As a Guest, I want to create an account using my email, first name, last name, password, and select my locality(city/town/village), so that I can participate in the platform
+FR1.02	User Management	As a User, I want to confirm my email via a confirmation link, so that my account is verified and fully activated
+FR1.03	User Management	As a User, I want to log in using my email and password, so that I can access platform features
+FR1.04	User Management	As a User, I want to reset my password, so that I can regain access to my account
+FR1.05	User Management	As a User, I want to update my locality, first name, last name, and password in my account settings, so that my profile stays up to date
+FR1.06	User Management	As a User, I want to manage my active sessions and log out from a specific device or all devices simultaneously, so that I can secure my account if a device is lost or compromised.
+FR1.07	User Management	As an Admin, I want to give admin or moderator roles to other accounts, so that I can delegate platform management and moderation duties
+Posts / Reports		
+FR2.01	Report Management	As a User, I want to create a report with title, description, coordinates(latitude/longitude), and locality, so that I can pin a city issue on the maps
+FR2.02	Report Management	As a Report Author, I want to attach up to 10 images, so that I can provide visual evidence
+FR2.03	Report Management	As a Report Author, I want to edit or delete my report, so that I can correct mistakes or remove reports that are no longer relevant.
+FR2.04	Report Management	As a User, I want to view images in a viewer, so that I can inspect them in detail
+Browsing & Map		
+FR3.01	Content Discovery	As a Guest, I want to browse reports, so that I can explore platform content without registering
+FR3.02	Content Discovery	As a Guest, I want to view reports pinned on a geographic map, grouped into clusters based on my zoom level, so that I can visually identify areas with high concentrations of problems.
+FR3.04	Content Discovery	As a Guest, I want to browse a paginated feed of problem reports, so that I can read through recent or popular issues linearly.
+FR3.05	Content Discovery	As a Guest,  want to filter the report feed by specific geographic entities (countries, states, localities), so that I only see issues relevant to my area.
+Problem Resolution		
+FR4.01	Solution Management	As a User, I want to submit a solution with text and images to an existing report, so that I can propose how to fix the problem or provide the proof that it has been fixed
+FR4.02	Solution Management	As a Solution Author, I want to edit or delete my solutions and manage attached photos, so that my contributions remain accurate
+FR4.03	Solution Management	As a Report Author, As the author of a report, I want to mark a submitted solution as "Approved", so that the community knows the problem has been successfully resolved.
+Community		
+FR5.01	Community Engagement	As a User, I want to leave comments on reports, on proposed solutions, or reply to other comments, so that I can participate in community discussions
+FR5.02	Community Engagement	As a User, I want to leave a reaction ("like" or "dislike") on reports, solutions, and comments, so that I can express my opinion on the validity or quality of the content.
+FR5.03	Community Engagement	As a User, I want to have my own profile and view other user profiles with their reports, solutions, comments and reactions, so that I can see and share contributions
+Platform Governance		
+FR6.01	Moderation	As a User, I want to report inappropriate or abusive posts, solutions, or comments to the administration, so that the platform remains a safe and constructive environment.
+FR6.02	Moderation	As an Moderator, I want to view a paginated list of user reports (flagged content), so that I can review and take action on community guideline violations.
+FR6.03	Moderation	As an Moderator, I want to be able to ban users who severely or repeatedly violate platform rules, so that they can no longer interact with or disrupt the community.
+Artificial Intelligence Features		
+FR7.01	AI Assistance	As a User, I want to click an "AI Comment" button under report text so that the system generates a comment (visible to everyone) with AI recommendations on how to handle the specific problem.
+FR7.02	AI Assistance	As a User, I want to send data suggestions with specific local information (e.g., local authorities' contact info or specific city procedures), so that this knowledge can be added to the AI prompt for my locality.
+FR7.03	AI Assistance	As an Moderator, I want to review user data suggestions and edit the AI prompts for specific localities, so that the AI uses customized, locally relevant context instead of a generic standard prompt when generating comments.
+
+## Role	Description	
+Guest	Unregistered user who can browse public content but cannot create, edit or interact with it	
+User	Registered user who can create reports, solutions, comments and react to content	
+Report Author	User who created a report and can edit or delete it and approve solutions	
+Solution Author	User who created a solution and can edit or delete it	
+Moderator	User who can view flagged content, ban users and manage AI knowledge	
+Admin	User who can assign any role to other accounts.	
+
+# Non-functional requirements
+
+ID	Quality Attribute	Requirement
+NFR-P1	Performance	System shall respond to 95% of API requests (report creation, feed loading, map data) in less than 500 ms under normal load (up to 20 requests per second).
+NFR-P2	Performance	System shall handle up to 50 requests per second under normal load and up to 100 requests per second under peak load without critical degradation.
+NFR-P3	Performance	AI recommendation requests shall be processed asynchronously and must not block user interface interactions.
+NFR-P4	Performance	System shall support uploading up to 10 images per report (maximum 5MB each) with upload start latency less than 1 second.
+		
+ID	Quality Attribute	Requirement
+NFR-A1	Availability	System shall be available at least 95% of the time excluding scheduled maintenance.
+NFR-A2	Availability	System shall recover from failures within 2 hours (RTO) with acceptable data loss of up to 5 hours (RPO).
+		
+ID	Quality Attribute	Requirement
+NFR-S1	Security	System shall store user passwords using secure hashing algorithms such as bcrypt.
+NFR-S2	Security	System shall protect against common injection attacks (SQL injection using parameterized queries/ORM, XSS using input sanitization and output encoding).
+NFR-S3	Security	System shall protect against prompt injection attacks in AI-generated recommendations
+NFR-S4	Security	System shall implement rate limiting (maximum 100 requests per minute per user) at API gateway level.
+NFR-S5	Security	System shall use secure authentication based on JWT access and refresh tokens.
+		
+ID	Quality Attribute	Requirement
+NFR-SC1	Scalability	System shall support horizontal scaling of stateless services using container replication.
+NFR-SC2	Scalability	System shall maintain response time degradation of no more than 20% when the dataset size increases by 10x.
+		
+ID	Quality Attribute	Requirement
+NFR-R1	Reliability	System shall not lose user-generated content such as reports, solutions and comments during normal operation.
+NFR-R2	Reliability	System shall ensure eventual consistency between services within 3 minutes.
+NFR-R3	Reliability	System shall retry failed operations (e.g., image upload or AI processing) up to 3 times with exponential backoff.
+NFR-R4	Reliability	System shall ensure idempotency of requests using unique request identifiers (idempotency keys).
+		
+ID	Quality Attribute	Requirement
+NFR-M1	Maintainability	System should have at least 80% automated test coverage.
+NFR-M2	Maintainability	System shall follow consistent code structure and naming conventions across backend and frontend.
+NFR-M3	Maintainability	System shall support CI/CD pipeline with automated build and test execution.
+		
+ID	Quality Attribute	Requirement
+NFR-U1	Usability	System shall provide adaptive web UI for desktop and mobile devices.
+NFR-U2	Usability	System shall provide intuitive navigation for creating reports, browsing map and interacting with content.
+		
+ID	Quality Attribute	Requirement
+NFR-O1	Observability	System shall log all important events including report creation, deletion, moderation actions and AI usage.
+NFR-O2	Observability	Each service shall expose a /health endpoint for health checks.
+NFR-O3	Observability	System shall trigger alerts when error rate exceeds 5% over a 1-minute period.
+NFR-O4	Observability	System shall track usage metrics such as number of reports, active users and AI requests.
+		
+ID	Quality Attribute	Requirement
+NFR-G1	Privacy (GDPR)	System shall comply with GDPR regulations for personal data protection.
+NFR-G2	Privacy (GDPR)	System shall allow users to request deletion of their personal data and account.
+NFR-G3	Privacy (GDPR)	System shall allow users to access and export their personal data.
+NFR-G4	Privacy (GDPR)	System shall collect and store only necessary user data required for platform functionality.
