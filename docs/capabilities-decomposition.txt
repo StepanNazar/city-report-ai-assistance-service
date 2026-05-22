@@ -1,0 +1,41 @@
+---
+config:
+    treeView:
+        rowIndent: 80
+        lineThickness: 3
+    themeVariables:
+        treeView:
+            labelFontSize: '20px'
+            labelColor: '#222222'
+            lineColor: '#555555'
+---
+treeView-beta
+    "Urban Problem Reporting Platform"
+        "User Identity & Access"
+            "User Registration"
+            "Email Confirmation"
+            "Authentication"
+            "Password Reset"
+            "Profile Management"
+            "User Profile Page"
+            "Device Management"
+            "Admin User Management"
+        "Problems"
+            "Problems Management"
+            "Comments Management"
+            "Solutions Management"
+            "Solutions Approval"
+            "Image Attachments"
+            "Map View"
+            "Feed View"
+        "Community Engagement"
+            "Reactions"
+        "Moderation"
+            "Report Content"
+            "Moderation Queue"
+            "Ban Users"
+            "Remove reported content"
+        "AI Assistance"
+            "Generate AI Recommendations"
+            "Suggest AI Knowledge"
+            "Manage AI Prompts"
