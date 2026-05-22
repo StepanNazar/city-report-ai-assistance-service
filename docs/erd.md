@@ -2,8 +2,7 @@
 erDiagram
 
     LOCALITY_AI_PROMPTS {
-        UUID id PK
-        UUID locality_id
+        UUID locality_id PK
         TEXT prompt_text
         UUID created_by_user_id
         UUID updated_by_user_id
