@@ -1,0 +1,114 @@
+asyncapi: 3.0.0
+
+info:
+  title: AI Assistance Service Events
+  version: 1.0.0
+  description: |
+    AsyncAPI specification for AI recommendation comment generation.
+
+servers:
+  kafkaBroker:
+    host: kafka:9092
+    protocol: kafka
+    description: Kafka message broker
+
+channels:
+
+  aiCommentRequested:
+    address: ai.comment.requested
+    messages:
+      AICommentRequested:
+        $ref: '#/components/messages/AICommentRequested'
+
+  aiCommentGenerated:
+    address: ai.comment.generated
+    messages:
+      AICommentGenerated:
+        $ref: '#/components/messages/AICommentGenerated'
+
+operations:
+
+  consumeAICommentRequested:
+    action: receive
+    channel:
+      $ref: '#/channels/aiCommentRequested'
+    summary: Consume AI comment generation requests
+    description: |
+      Receives requests for generating AI recommendation comments for reports.
+
+    messages:
+      - $ref: '#/channels/aiCommentRequested/messages/AICommentRequested'
+
+  publishAICommentGenerated:
+    action: send
+    channel:
+      $ref: '#/channels/aiCommentGenerated'
+    summary: Publish generated AI recommendation comments
+    description: |
+      Publishes generated AI recommendation comments after successful processing.
+
+    messages:
+      - $ref: '#/channels/aiCommentGenerated/messages/AICommentGenerated'
+
+components:
+
+  messages:
+
+    AICommentRequested:
+      name: AICommentRequested
+      title: AI Comment Requested Event
+      summary: Request to generate an AI recommendation comment
+      contentType: application/json
+
+      payload:
+        type: object
+        required:
+          - aiRequestId
+          - reportId
+          - localityId
+          - reportTitle
+          - reportDescription
+
+        properties:
+          aiRequestId:
+            type: string
+            format: uuid
+
+          reportId:
+            type: string
+            format: uuid
+
+          localityId:
+            type: string
+            format: uuid
+
+          reportTitle:
+            type: string
+
+          reportDescription:
+            type: string
+
+    AICommentGenerated:
+      name: AICommentGenerated
+      title: AI Comment Generated Event
+      summary: Generated AI recommendation comment
+      contentType: application/json
+
+      payload:
+        type: object
+        required:
+          - aiRequestId
+          - reportId
+          - generatedComment
+
+        properties:
+          aiRequestId:
+            type: string
+            format: uuid
+
+          reportId:
+            type: string
+            format: uuid
+
+          generatedComment:
+            type: string
