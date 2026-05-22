@@ -1,0 +1,421 @@
+openapi: 3.0.3
+
+info:
+  title: AI Assistance Service API
+  version: 1.0.0
+  description: |
+    API for managing locality-specific AI prompts and prompt suggestions.
+
+servers:
+  - url: /api/v1
+
+tags:
+  - name: AI Prompts
+  - name: Prompt Suggestions
+  - name: Health
+
+paths:
+
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check endpoint (Role: USER/MODERATOR/ADMIN)
+      description: Returns service health status. Role required: USER, MODERATOR, or ADMIN.
+      operationId: healthCheck
+      parameters:
+        - $ref: '#/components/parameters/UserRoleHeader'
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+        '403':
+          description: Forbidden
+
+  /prompts/{localityId}:
+    get:
+      tags:
+        - AI Prompts
+      summary: Retrieve locality AI prompt (Role: MODERATOR or ADMIN)
+      description: Fetches the currently configured AI prompt for a specific locality. Role required: MODERATOR or ADMIN.
+      operationId: retrieveLocalityPrompt
+      parameters:
+        - $ref: '#/components/parameters/UserRoleHeader'
+        - name: localityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Locality AI prompt retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocalityPromptResponse'
+
+        '403':
+          description: Forbidden
+
+        '404':
+          description: Prompt not found
+
+    post:
+      tags:
+        - AI Prompts
+      summary: Create locality AI prompt (Role: MODERATOR or ADMIN)
+      description: Creates a new locality-specific AI prompt. Role required: MODERATOR or ADMIN.
+      operationId: createLocalityPrompt
+      parameters:
+        - $ref: '#/components/parameters/UserRoleHeader'
+        - name: localityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePromptRequest'
+
+      responses:
+        '201':
+          description: Prompt created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocalityPromptResponse'
+
+        '403':
+          description: Forbidden
+
+        '400':
+          description: Invalid request payload
+
+    put:
+      tags:
+        - AI Prompts
+      summary: Update locality AI prompt (Role: MODERATOR or ADMIN)
+      description: Updates an existing locality-specific AI prompt. Role required: MODERATOR or ADMIN.
+      operationId: updateLocalityPrompt
+      parameters:
+        - $ref: '#/components/parameters/UserRoleHeader'
+        - name: localityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePromptRequest'
+
+      responses:
+        '200':
+          description: Prompt updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocalityPromptResponse'
+
+        '403':
+          description: Forbidden
+
+        '400':
+          description: Invalid request payload
+
+        '404':
+          description: Prompt not found
+
+  /prompt-suggestions:
+    post:
+      tags:
+        - Prompt Suggestions
+      summary: Submit prompt suggestion (Role: USER or ADMIN)
+      description: Allows users to submit locality-specific contextual suggestions for improving AI-generated recommendations. Role required: USER or ADMIN.
+      operationId: submitPromptSuggestion
+      parameters:
+        - $ref: '#/components/parameters/UserRoleHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePromptSuggestionRequest'
+
+      responses:
+        '201':
+          description: Prompt suggestion submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptSuggestionResponse'
+
+        '403':
+          description: Forbidden
+
+        '400':
+          description: Invalid request payload
+
+    get:
+      tags:
+        - Prompt Suggestions
+      summary: Retrieve prompt suggestions (Role: MODERATOR or ADMIN)
+      description: Fetches a paginated list of prompt suggestions filtered by review status. Role required: MODERATOR or ADMIN.
+      operationId: retrievePromptSuggestions
+      parameters:
+        - $ref: '#/components/parameters/UserRoleHeader'
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - PENDING
+              - APPROVED
+              - REJECTED
+
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+
+      responses:
+        '200':
+          description: Prompt suggestions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPromptSuggestionsResponse'
+
+        '403':
+          description: Forbidden
+
+  /prompt-suggestions/{suggestionId}/review:
+    patch:
+      tags:
+        - Prompt Suggestions
+      summary: Review prompt suggestion (Role: MODERATOR or ADMIN)
+      description: Approves or rejects a user-submitted prompt suggestion. Role required: MODERATOR or ADMIN.
+      operationId: reviewPromptSuggestion
+      parameters:
+        - $ref: '#/components/parameters/UserRoleHeader'
+        - name: suggestionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewPromptSuggestionRequest'
+
+      responses:
+        '200':
+          description: Prompt suggestion reviewed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptSuggestionResponse'
+
+        '403':
+          description: Forbidden
+
+        '400':
+          description: Invalid request payload
+
+        '404':
+          description: Prompt suggestion not found
+
+components:
+
+  parameters:
+    UserRoleHeader:
+      name: X-User-Role
+      in: header
+      required: true
+      description: Role provided by API Gateway for authorization checks.
+      schema:
+        type: string
+        enum:
+          - USER
+          - MODERATOR
+          - ADMIN
+
+  schemas:
+
+    CreatePromptRequest:
+      type: object
+      required:
+        - promptText
+      properties:
+        promptText:
+          type: string
+          minLength: 1
+          maxLength: 10000
+          example: |
+            For road issues in this locality, recommend contacting the municipal hotline 1580.
+
+    UpdatePromptRequest:
+      type: object
+      required:
+        - promptText
+      properties:
+        promptText:
+          type: string
+          minLength: 1
+          maxLength: 10000
+          example: |
+            Mention the updated city hotline and official road maintenance portal.
+
+    LocalityPromptResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+
+        localityId:
+          type: string
+          format: uuid
+
+        promptText:
+          type: string
+
+        createdByUserId:
+          type: string
+          format: uuid
+
+        updatedByUserId:
+          type: string
+          format: uuid
+
+        createdAt:
+          type: string
+          format: date-time
+
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreatePromptSuggestionRequest:
+      type: object
+      required:
+        - localityId
+        - suggestionText
+
+      properties:
+        localityId:
+          type: string
+          format: uuid
+
+        suggestionText:
+          type: string
+          minLength: 1
+          maxLength: 5000
+          example: |
+            The AI should recommend using the city's electronic petition platform for infrastructure complaints.
+
+    ReviewPromptSuggestionRequest:
+      type: object
+      required:
+        - status
+
+      properties:
+        status:
+          type: string
+          enum:
+            - APPROVED
+            - REJECTED
+
+    PromptSuggestionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+
+        localityId:
+          type: string
+          format: uuid
+
+        authorUserId:
+          type: string
+          format: uuid
+
+        suggestionText:
+          type: string
+
+        status:
+          type: string
+          enum:
+            - PENDING
+            - APPROVED
+            - REJECTED
+
+        reviewedByUserId:
+          type: string
+          format: uuid
+          nullable: true
+
+        reviewedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+        createdAt:
+          type: string
+          format: date-time
+
+    PaginatedPromptSuggestionsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PromptSuggestionResponse'
+
+        page:
+          type: integer
+
+        pageSize:
+          type: integer
+
+        totalItems:
+          type: integer
+
+        totalPages:
+          type: integer
