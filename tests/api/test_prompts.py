@@ -1,13 +1,15 @@
 from uuid import uuid4
 
 import pytest
+from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ai_assistance_service.persistence_module.models import LocalityPrompt
 
 
 class TestGetPrompt:
     @pytest.mark.asyncio
-    async def test_returns_404_when_prompt_missing(self, client) -> None:
+    async def test_returns_404_when_prompt_missing(self, client: AsyncClient) -> None:
         locality_id = uuid4()
 
         response = await client.get(
@@ -20,7 +22,7 @@ class TestGetPrompt:
 
 class TestPostPrompt:
     @pytest.mark.asyncio
-    async def test_creates_prompt_for_moderator(self, client) -> None:
+    async def test_creates_prompt_for_moderator(self, client: AsyncClient) -> None:
         locality_id = uuid4()
         payload = {"promptText": "Use local hotline."}
 
@@ -34,7 +36,7 @@ class TestPostPrompt:
         assert response.json()["localityId"] == str(locality_id)
 
     @pytest.mark.asyncio
-    async def test_returns_403_for_user_role(self, client) -> None:
+    async def test_returns_403_for_user_role(self, client: AsyncClient) -> None:
         locality_id = uuid4()
         payload = {"promptText": "Use local hotline."}
 
@@ -49,7 +51,9 @@ class TestPostPrompt:
 
 class TestPutPrompt:
     @pytest.mark.asyncio
-    async def test_updates_existing_prompt(self, client, session) -> None:
+    async def test_updates_existing_prompt(
+        self, client: AsyncClient, session: AsyncSession
+    ) -> None:
         locality_id = uuid4()
         user_id = uuid4()
         session.add(
@@ -73,7 +77,7 @@ class TestPutPrompt:
         assert response.json()["promptText"] == "New prompt"
 
     @pytest.mark.asyncio
-    async def test_returns_404_when_prompt_missing(self, client) -> None:
+    async def test_returns_404_when_prompt_missing(self, client: AsyncClient) -> None:
         locality_id = uuid4()
         payload = {"promptText": "New prompt"}
 

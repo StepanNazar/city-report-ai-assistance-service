@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
@@ -23,7 +23,9 @@ def create_app(settings: AppSettings | None = None) -> FastAPI:
     app.include_router(api_router, prefix="/api/v1")
 
     @app.exception_handler(RequestValidationError)
-    async def request_validation_exception_handler(request, exc):
+    async def request_validation_exception_handler(
+        request: Request, exc: RequestValidationError
+    ) -> JSONResponse:
         return JSONResponse(status_code=400, content={"detail": "Invalid request payload"})
 
     @app.on_event("startup")

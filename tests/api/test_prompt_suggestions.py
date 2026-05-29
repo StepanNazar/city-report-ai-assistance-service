@@ -1,13 +1,15 @@
 from uuid import uuid4
 
 import pytest
+from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ai_assistance_service.persistence_module.models import PromptSuggestion, PromptSuggestionStatus
 
 
 class TestPostPromptSuggestion:
     @pytest.mark.asyncio
-    async def test_creates_pending_suggestion(self, client) -> None:
+    async def test_creates_pending_suggestion(self, client: AsyncClient) -> None:
         payload = {"localityId": str(uuid4()), "suggestionText": "Local advice"}
 
         response = await client.post(
@@ -22,7 +24,9 @@ class TestPostPromptSuggestion:
 
 class TestGetPromptSuggestions:
     @pytest.mark.asyncio
-    async def test_returns_paginated_results(self, client, session) -> None:
+    async def test_returns_paginated_results(
+        self, client: AsyncClient, session: AsyncSession
+    ) -> None:
         suggestion = PromptSuggestion(
             locality_id=uuid4(),
             author_user_id=uuid4(),
@@ -43,7 +47,7 @@ class TestGetPromptSuggestions:
 
 class TestPatchPromptSuggestionReview:
     @pytest.mark.asyncio
-    async def test_updates_status(self, client, session) -> None:
+    async def test_updates_status(self, client: AsyncClient, session: AsyncSession) -> None:
         suggestion = PromptSuggestion(
             locality_id=uuid4(),
             author_user_id=uuid4(),

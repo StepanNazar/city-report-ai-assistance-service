@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 import pytest
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ai_assistance_service.ai_processing_module.ai_processing_service import AiProcessingService
 from ai_assistance_service.ai_processing_module.schemas import AiCommentRequested
@@ -28,7 +29,7 @@ class FakeGuard:
 
 class TestAiProcessingService:
     @pytest.mark.asyncio
-    async def test_reuses_existing_pending_comment(self, session) -> None:
+    async def test_reuses_existing_pending_comment(self, session: AsyncSession) -> None:
         ai_request_id = uuid4()
         session.add(PendingAiResult(ai_request_id=ai_request_id, generated_comment="Cached comment"))
         await session.commit()
@@ -53,7 +54,7 @@ class TestAiProcessingService:
         assert llm_client.called is False
 
     @pytest.mark.asyncio
-    async def test_raises_when_prompt_injection_detected(self, session) -> None:
+    async def test_raises_when_prompt_injection_detected(self, session: AsyncSession) -> None:
         request = AiCommentRequested(
             aiRequestId=uuid4(),
             reportId=uuid4(),
