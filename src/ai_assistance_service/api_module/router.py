@@ -5,7 +5,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ai_assistance_service.api_module.dependencies import UserRole, require_roles
+from ai_assistance_service.api_module.dependencies import UserContext, UserRole, require_roles
 from ai_assistance_service.api_module.schemas import (
     CreatePromptRequest,
     CreatePromptSuggestionRequest,
@@ -39,7 +39,9 @@ def get_suggestion_service(session: AsyncSession = Depends(get_session)) -> Sugg
     response_model=HealthResponse,
 )
 async def health_check(
-    _: object = Depends(require_roles(UserRole.USER, UserRole.MODERATOR, UserRole.ADMIN)),
+    user_context: UserContext = Depends(
+        require_roles(UserRole.USER, UserRole.MODERATOR, UserRole.ADMIN)
+    ),
 ) -> HealthResponse:
     return HealthResponse(status="ok")
 
@@ -51,7 +53,7 @@ async def health_check(
 async def retrieve_prompt(
     locality_id: UUID,
     service: PromptService = Depends(get_prompt_service),
-    _: object = Depends(require_roles(UserRole.MODERATOR, UserRole.ADMIN)),
+    user_context: UserContext = Depends(require_roles(UserRole.MODERATOR, UserRole.ADMIN)),
 ) -> LocalityPromptResponse:
     try:
         prompt = await service.get_prompt(locality_id)
@@ -70,10 +72,12 @@ async def create_prompt(
     locality_id: UUID,
     payload: CreatePromptRequest,
     service: PromptService = Depends(get_prompt_service),
-    context=Depends(require_roles(UserRole.MODERATOR, UserRole.ADMIN)),
+    user_context: UserContext = Depends(require_roles(UserRole.MODERATOR, UserRole.ADMIN)),
 ) -> LocalityPromptResponse:
     try:
-        prompt = await service.create_prompt(locality_id, payload.prompt_text, context.user_id)
+        prompt = await service.create_prompt(
+            locality_id, payload.prompt_text, user_context.user_id
+        )
     except PromptAlreadyExistsError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
@@ -88,10 +92,12 @@ async def update_prompt(
     locality_id: UUID,
     payload: UpdatePromptRequest,
     service: PromptService = Depends(get_prompt_service),
-    context=Depends(require_roles(UserRole.MODERATOR, UserRole.ADMIN)),
+    user_context: UserContext = Depends(require_roles(UserRole.MODERATOR, UserRole.ADMIN)),
 ) -> LocalityPromptResponse:
     try:
-        prompt = await service.update_prompt(locality_id, payload.prompt_text, context.user_id)
+        prompt = await service.update_prompt(
+            locality_id, payload.prompt_text, user_context.user_id
+        )
     except PromptNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
@@ -106,12 +112,12 @@ async def update_prompt(
 async def submit_prompt_suggestion(
     payload: CreatePromptSuggestionRequest,
     service: SuggestionService = Depends(get_suggestion_service),
-    context=Depends(require_roles(UserRole.USER, UserRole.ADMIN)),
+    user_context: UserContext = Depends(require_roles(UserRole.USER, UserRole.ADMIN)),
 ) -> PromptSuggestionResponse:
     suggestion = await service.create_suggestion(
         payload.locality_id,
         payload.suggestion_text,
-        context.user_id,
+        user_context.user_id,
     )
     return PromptSuggestionResponse.model_validate(suggestion)
 
@@ -125,7 +131,7 @@ async def retrieve_prompt_suggestions(
     page: int = 1,
     page_size: int = 20,
     service: SuggestionService = Depends(get_suggestion_service),
-    _: object = Depends(require_roles(UserRole.MODERATOR, UserRole.ADMIN)),
+    user_context: UserContext = Depends(require_roles(UserRole.MODERATOR, UserRole.ADMIN)),
 ) -> PaginatedPromptSuggestionsResponse:
     page_size = min(max(page_size, 1), 100)
     page = max(page, 1)
@@ -149,13 +155,13 @@ async def review_prompt_suggestion(
     suggestion_id: UUID,
     payload: ReviewPromptSuggestionRequest,
     service: SuggestionService = Depends(get_suggestion_service),
-    context=Depends(require_roles(UserRole.MODERATOR, UserRole.ADMIN)),
+    user_context: UserContext = Depends(require_roles(UserRole.MODERATOR, UserRole.ADMIN)),
 ) -> PromptSuggestionResponse:
     try:
         suggestion = await service.review_suggestion(
             suggestion_id,
             payload.status,
-            context.user_id,
+            user_context.user_id,
         )
     except SuggestionNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
