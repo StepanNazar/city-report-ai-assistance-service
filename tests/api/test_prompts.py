@@ -51,12 +51,13 @@ class TestPutPrompt:
     @pytest.mark.asyncio
     async def test_updates_existing_prompt(self, client, session) -> None:
         locality_id = uuid4()
+        user_id = uuid4()
         session.add(
             LocalityPrompt(
                 locality_id=locality_id,
                 prompt_text="Old prompt",
-                created_by_user_id=uuid4(),
-                updated_by_user_id=uuid4(),
+                created_by_user_id=user_id,
+                updated_by_user_id=user_id,
             )
         )
         await session.commit()

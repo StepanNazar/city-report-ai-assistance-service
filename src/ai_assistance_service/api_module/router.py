@@ -58,17 +58,7 @@ async def retrieve_prompt(
     except PromptNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
-    return LocalityPromptResponse.model_validate(
-        {
-            "id": prompt.locality_id,
-            "localityId": prompt.locality_id,
-            "promptText": prompt.prompt_text,
-            "createdByUserId": prompt.created_by_user_id,
-            "updatedByUserId": prompt.updated_by_user_id,
-            "createdAt": prompt.created_at,
-            "updatedAt": prompt.updated_at,
-        }
-    )
+    return LocalityPromptResponse.model_validate(prompt, from_attributes=True)
 
 
 @router.post(
@@ -87,17 +77,7 @@ async def create_prompt(
     except PromptAlreadyExistsError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    return LocalityPromptResponse.model_validate(
-        {
-            "id": prompt.locality_id,
-            "localityId": prompt.locality_id,
-            "promptText": prompt.prompt_text,
-            "createdByUserId": prompt.created_by_user_id,
-            "updatedByUserId": prompt.updated_by_user_id,
-            "createdAt": prompt.created_at,
-            "updatedAt": prompt.updated_at,
-        }
-    )
+    return LocalityPromptResponse.model_validate(prompt, from_attributes=True)
 
 
 @router.put(
@@ -115,17 +95,7 @@ async def update_prompt(
     except PromptNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
-    return LocalityPromptResponse.model_validate(
-        {
-            "id": prompt.locality_id,
-            "localityId": prompt.locality_id,
-            "promptText": prompt.prompt_text,
-            "createdByUserId": prompt.created_by_user_id,
-            "updatedByUserId": prompt.updated_by_user_id,
-            "createdAt": prompt.created_at,
-            "updatedAt": prompt.updated_at,
-        }
-    )
+    return LocalityPromptResponse.model_validate(prompt, from_attributes=True)
 
 
 @router.post(

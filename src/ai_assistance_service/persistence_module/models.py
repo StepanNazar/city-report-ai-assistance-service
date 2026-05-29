@@ -31,6 +31,10 @@ class LocalityPrompt(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
+    @property
+    def id(self) -> UUID:
+        return self.locality_id
+
 
 class PromptSuggestion(Base):
     __tablename__ = "prompt_suggestions"

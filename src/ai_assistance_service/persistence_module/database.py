@@ -25,7 +25,7 @@ class SessionManager:
         await self._engine.dispose()
 
 
-def get_session(request: Request) -> AsyncIterator[AsyncSession]:
+async def get_session(request: Request) -> AsyncIterator[AsyncSession]:
     session_manager: SessionManager = request.app.state.session_manager
     session: AsyncSession = session_manager.session_factory()
     try:

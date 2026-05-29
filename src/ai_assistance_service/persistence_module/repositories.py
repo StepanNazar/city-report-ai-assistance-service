@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from sqlalchemy import func, select
@@ -111,7 +111,7 @@ class SuggestionRepository:
     ) -> PromptSuggestion:
         suggestion.status = status
         suggestion.reviewed_by_user_id = reviewed_by_user_id
-        suggestion.reviewed_at = datetime.utcnow()
+        suggestion.reviewed_at = datetime.now(timezone.utc)
         await self._session.commit()
         await self._session.refresh(suggestion)
         return suggestion
