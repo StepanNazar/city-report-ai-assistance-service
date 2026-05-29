@@ -52,7 +52,7 @@ class AiCommentConsumer:
             try:
                 await self._process_message(message.value)
             except Exception as exc:
-                self._logger.error(\"ai_comment_processing_error\", error=str(exc))
+                self._logger.error("ai_comment_processing_error", error=str(exc))
 
     async def _process_message(self, payload: bytes) -> None:
         request = AiCommentRequested.model_validate(json.loads(payload.decode("utf-8")))

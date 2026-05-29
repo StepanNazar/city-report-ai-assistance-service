@@ -11,7 +11,7 @@ from ai_assistance_service.main import create_app
 
 
 @pytest.fixture
-async def app(tmp_path: Path) -> AsyncIterator:
+async def fastapi_app(tmp_path: Path) -> AsyncIterator:
     settings = AppSettings(
         database_url=f"sqlite+aiosqlite:///{tmp_path}/test.db",
         kafka_enabled=False,
@@ -21,13 +21,13 @@ async def app(tmp_path: Path) -> AsyncIterator:
 
 
 @pytest.fixture
-async def client(app) -> AsyncIterator[AsyncClient]:
-    transport = ASGITransport(app=app, lifespan="on")
+async def client(fastapi_app) -> AsyncIterator[AsyncClient]:
+    transport = ASGITransport(app=fastapi_app, lifespan="on")
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         yield client
 
 
 @pytest.fixture
-async def session(app) -> AsyncIterator:
-    async with app.state.session_manager.session_factory() as session:
+async def session(fastapi_app) -> AsyncIterator:
+    async with fastapi_app.state.session_manager.session_factory() as session:
         yield session

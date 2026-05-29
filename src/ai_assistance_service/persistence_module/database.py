@@ -27,8 +27,5 @@ class SessionManager:
 
 async def get_session(request: Request) -> AsyncIterator[AsyncSession]:
     session_manager: SessionManager = request.app.state.session_manager
-    session: AsyncSession = session_manager.session_factory()
-    try:
+    async with session_manager.session_factory() as session:
         yield session
-    finally:
-        await session.close()
