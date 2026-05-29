@@ -84,7 +84,7 @@ class TestPutPrompt:
         response = await client.put(
             f"/api/v1/prompts/{locality_id}",
             json=payload,
-            headers={"X-User-Role": "ADMIN"},
+            headers={"X-User-Role": "ADMIN", "X-User-Id": str(uuid4())},
         )
 
         assert response.status_code == 404

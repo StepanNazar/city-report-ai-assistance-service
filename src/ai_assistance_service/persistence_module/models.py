@@ -26,7 +26,9 @@ class LocalityPrompt(Base):
     prompt_text: Mapped[str] = mapped_column(Text)
     created_by_user_id: Mapped[UUID | None] = mapped_column(Uuid, nullable=True)
     updated_by_user_id: Mapped[UUID | None] = mapped_column(Uuid, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), index=True
+    )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
