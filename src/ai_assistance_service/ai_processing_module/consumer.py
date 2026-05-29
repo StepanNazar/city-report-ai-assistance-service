@@ -31,10 +31,14 @@ class AiCommentConsumer:
         )
         self._producer = KafkaAiCommentProducer(settings.kafka_bootstrap_servers, "ai.comment.generated")
         self._task: asyncio.Task[None] | None = None
+        self._consumer_started = False
+        self._producer_started = False
 
     async def start(self) -> None:
         await self._producer.start()
+        self._producer_started = True
         await self._consumer.start()
+        self._consumer_started = True
         self._task = asyncio.create_task(self._consume_loop())
 
     async def stop(self) -> None:
@@ -44,8 +48,10 @@ class AiCommentConsumer:
                 await self._task
             except asyncio.CancelledError:
                 pass
-        await self._consumer.stop()
-        await self._producer.stop()
+        if self._consumer_started:
+            await self._consumer.stop()
+        if self._producer_started:
+            await self._producer.stop()
 
     async def _consume_loop(self) -> None:
         async for message in self._consumer:
