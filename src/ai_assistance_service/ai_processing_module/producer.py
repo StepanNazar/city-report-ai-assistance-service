@@ -25,5 +25,5 @@ class KafkaAiCommentProducer:
         await self._producer.stop()
 
     async def send(self, event: AiCommentGenerated) -> None:
-        payload = event.model_dump(by_alias=True)
+        payload = event.model_dump(mode="json", by_alias=True)
         await self._producer.send_and_wait(self._topic, json.dumps(payload).encode("utf-8"))
