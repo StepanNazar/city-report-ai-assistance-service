@@ -23,6 +23,8 @@ Copy the environment template and update values:
 cp .env.example .env
 ```
 
+Ensure `AI_ASSISTANCE_DATABASE_URL` is set to a valid PostgreSQL connection string (see `.env.example` for the expected format).
+
 ## Install dependencies
 
 ```bash
